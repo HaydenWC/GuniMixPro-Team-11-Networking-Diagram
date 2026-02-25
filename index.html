@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gunimix Pro — Network Diagram</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700;900&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --critical: #f97316;
+    --critical-glow: rgba(249,115,22,0.3);
+    --normal: #3b82f6;
+    --normal-glow: rgba(59,130,246,0.2);
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --finish: #22c55e;
+    --finish-glow: rgba(34,197,94,0.3);
+    --arrow-critical: #f97316;
+    --arrow-normal: #4b5563;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .header h1 span { color: var(--critical); }
+  .header p {
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .legend-box {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    border: 2px solid;
+  }
+  .legend-box.critical { border-color: var(--critical); background: rgba(249,115,22,0.15); }
+  .legend-box.normal { border-color: var(--normal); background: rgba(59,130,246,0.1); }
+
+  /* Node label format */
+  .node-label {
+    display: flex;
+    gap: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    justify-content: space-between;
+  }
+  .node-label span { 
+    background: rgba(255,255,255,0.06);
+    padding: 1px 5px;
+    border-radius: 2px;
+    min-width: 22px;
+    text-align: center;
+  }
+
+  /* Node grid layout */
+  .diagram-wrapper {
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  .diagram {
+    position: relative;
+    min-width: 1200px;
+    width: 100%;
+  }
+
+  svg.arrows {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: relative;
+  }
+
+  /* Node */
+  .node {
+    width: 140px;
+    min-height: 88px;
+    border-radius: 6px;
+    border: 2px solid;
+    padding: 8px 10px;
+    position: relative;
+    flex-shrink: 0;
+    transition: box-shadow 0.2s;
+  }
+  .node:hover { z-index: 10; }
+  .node.critical {
+    border-color: var(--critical);
+    background: linear-gradient(135deg, #1a0f06 0%, #1c1108 100%);
+    box-shadow: 0 0 12px var(--critical-glow);
+  }
+  .node.critical:hover { box-shadow: 0 0 24px var(--critical-glow); }
+  .node.normal {
+    border-color: var(--normal);
+    background: linear-gradient(135deg, #060d1a 0%, #08101f 100%);
+    box-shadow: 0 0 8px var(--normal-glow);
+  }
+  .node.normal:hover { box-shadow: 0 0 20px var(--normal-glow); }
+  .node.start-end {
+    border-color: var(--finish);
+    background: linear-gradient(135deg, #061a0c 0%, #081f10 100%);
+    box-shadow: 0 0 10px var(--finish-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--finish);
+    text-transform: uppercase;
+  }
+
+  .node-id {
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--critical);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .node.normal .node-id { color: var(--normal); }
+
+  .node-name {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 5px;
+  }
+
+  .node-dur {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+  }
+  .node-dur span {
+    background: rgba(255,255,255,0.08);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  .slack-badge {
+    position: absolute;
+    top: -10px; right: -10px;
+    background: #1e293b;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+  .slack-badge.zero { color: var(--critical); border-color: var(--critical); }
+
+  /* Spacers */
+  .spacer { flex: 1; }
+  .hspacer { width: 40px; flex-shrink: 0; }
+
+  /* Table */
+  .table-section {
+    margin-top: 40px;
+  }
+  .table-section h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  th {
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-weight: 400;
+    text-align: center;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  th:first-child, th:nth-child(2) { text-align: left; }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  td:first-child { 
+    font-weight: 900; 
+    font-size: 0.9rem;
+  }
+  td:nth-child(2) { 
+    text-align: left; 
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+  }
+  tr.critical-row td { background: rgba(249,115,22,0.05); }
+  tr.critical-row td:first-child { color: var(--critical); }
+  tr.normal-row td:first-child { color: var(--normal); }
+  tr:hover td { background: rgba(255,255,255,0.03); }
+  .zero-slack { color: var(--critical) !important; font-weight: 700; }
+
+  /* Critical path callout */
+  .cp-bar {
+    background: linear-gradient(90deg, rgba(249,115,22,0.15) 0%, transparent 100%);
+    border-left: 3px solid var(--critical);
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    border-radius: 0 6px 6px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--critical);
+  }
+  .cp-bar strong { color: var(--text); }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Gunimix Pro — <span>Network Diagram</span></h1>
+  <p>EGR 485/486 · Team 11 · Project Duration: 24 Weeks</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-box critical"></div> Critical Path (Slack = 0)</div>
+  <div class="legend-item"><div class="legend-box normal"></div> Non-Critical (Slack &gt; 0)</div>
+  <div class="legend-item" style="font-size:0.75rem">
+    <span style="background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:3px;font-family:'Share Tech Mono',monospace;">ES | EF</span>
+    &nbsp;Node format:&nbsp;
+    <span style="background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:3px;font-family:'Share Tech Mono',monospace;">t · LS | LF</span>
+  </div>
+</div>
+
+<div class="cp-bar">
+  Critical Path: <strong>A → B → F → H → J → K → L → M → N</strong> &nbsp;|&nbsp; 24 weeks total
+</div>
+
+<!-- DIAGRAM -->
+<div class="diagram-wrapper">
+<div class="diagram" id="diagram">
+
+  <!-- SVG arrows will be injected by JS -->
+  <svg class="arrows" id="arrows"></svg>
+
+  <!-- Layout: columns represent roughly the flow -->
+  <!-- We'll absolutely position all nodes -->
+  <div style="height: 620px; position: relative;" id="node-container"></div>
+
+</div>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline-section" style="margin-top: 28px;">
+  <h2 style="font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; font-family:'Share Tech Mono',monospace;">Project Timeline</h2>
+  <div style="overflow-x:auto; padding-bottom:8px;">
+    <div id="timeline-bar" style="position:relative; min-width:1200px;"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-section">
+  <h2>Activity Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Act</th>
+        <th>Activity</th>
+        <th>Predecessors</th>
+        <th>Dur (wk)</th>
+        <th>ES</th>
+        <th>EF</th>
+        <th>LS</th>
+        <th>LF</th>
+        <th>Slack</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
+
+<script>
+const activities = [
+  { id:'A', name:'Scope / Specs Sign-off',           pred:[],          dur:4, ES:0,  EF:4,  LS:0,  LF:4,  slack:0,  critical:true  },
+  { id:'B', name:'Concept Selection',                pred:['A'],       dur:2, ES:4,  EF:6,  LS:4,  LF:6,  slack:0,  critical:true  },
+  { id:'C', name:'Testing Plan Approved',            pred:['A'],       dur:2, ES:4,  EF:6,  LS:17, LF:19, slack:13, critical:false },
+  { id:'D', name:'Trailer Safety Analysis',          pred:['B'],       dur:2, ES:6,  EF:8,  LS:8,  LF:10, slack:2,  critical:false },
+  { id:'E', name:'Trailer Design & CAD',             pred:['B'],       dur:3, ES:6,  EF:9,  LS:7,  LF:10, slack:1,  critical:false },
+  { id:'F', name:'Hopper & Auger System Design & CAD', pred:['B'],     dur:3, ES:6,  EF:9,  LS:6,  LF:9,  slack:0,  critical:true  },
+  { id:'G', name:'Trailer Component Procurement',    pred:['D','E'],   dur:2, ES:9,  EF:11, LS:10, LF:12, slack:1,  critical:false },
+  { id:'H', name:'Hopper & Auger Procurement',       pred:['F'],       dur:2, ES:9,  EF:11, LS:9,  LF:11, slack:0,  critical:true  },
+  { id:'I', name:'Trailer Fabrication & Assembly',   pred:['G'],       dur:3, ES:11, EF:14, LS:12, LF:15, slack:1,  critical:false },
+  { id:'J', name:'Hopper & Auger Fabrication',       pred:['H'],       dur:4, ES:11, EF:15, LS:11, LF:15, slack:0,  critical:true  },
+  { id:'K', name:'Final System Assembly',            pred:['I','J'],   dur:2, ES:15, EF:17, LS:15, LF:17, slack:0,  critical:true  },
+  { id:'L', name:'Full System Integration',          pred:['K'],       dur:2, ES:17, EF:19, LS:17, LF:19, slack:0,  critical:true  },
+  { id:'M', name:'System Testing & Validation',      pred:['L','C'],   dur:4, ES:19, EF:23, LS:19, LF:23, slack:0,  critical:true  },
+  { id:'N', name:'Final Sign-off',                   pred:['M'],       dur:1, ES:23, EF:24, LS:23, LF:24, slack:0,  critical:true  },
+];
+
+// Node positions [col, row] in a grid (col in px, row in px)
+// Layout designed to show the flow clearly
+const NODE_W = 148;
+const NODE_H = 92;
+const COL_GAP = 52;
+const ROW_GAP = 28;
+
+// Manual layout positions {id: {x, y}}
+const positions = {
+  'START': { x: 10,   y: 250 },
+  'A':     { x: 130,  y: 250 },
+  'B':     { x: 330,  y: 250 },
+  'C':     { x: 330,  y: 490 },
+  'D':     { x: 530,  y: 100 },
+  'E':     { x: 530,  y: 250 },
+  'F':     { x: 530,  y: 400 },
+  'G':     { x: 730,  y: 175 },
+  'H':     { x: 730,  y: 400 },
+  'I':     { x: 930,  y: 175 },
+  'J':     { x: 930,  y: 400 },
+  'K':     { x: 1130, y: 287 },
+  'L':     { x: 1320, y: 287 },
+  'M':     { x: 1510, y: 287 },
+  'N':     { x: 1710, y: 287 },
+  'FINISH':{ x: 1900, y: 287 },
+};
+
+const container = document.getElementById('node-container');
+const svg = document.getElementById('arrows');
+const diagramDiv = document.getElementById('diagram');
+
+// Set diagram height based on max y
+const maxY = Math.max(...Object.values(positions).map(p => p.y)) + NODE_H + 40;
+const maxX = Math.max(...Object.values(positions).map(p => p.x)) + NODE_W + 40;
+container.style.height = maxY + 'px';
+diagramDiv.style.minWidth = maxX + 'px';
+diagramDiv.querySelector('svg').setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);
+diagramDiv.querySelector('svg').style.width = maxX + 'px';
+diagramDiv.querySelector('svg').style.height = maxY + 'px';
+
+// Create START node
+function makeStartEnd(id, label, pos) {
+  const el = document.createElement('div');
+  el.className = 'node start-end';
+  el.id = 'node-' + id;
+  el.style.cssText = `position:absolute; left:${pos.x}px; top:${pos.y}px; width:${id==='START'||id==='FINISH'?90:NODE_W}px; height:${NODE_H}px;`;
+  el.textContent = label;
+  container.appendChild(el);
+}
+
+// Create activity node
+function makeNode(act, pos) {
+  const el = document.createElement('div');
+  el.className = 'node ' + (act.critical ? 'critical' : 'normal');
+  el.id = 'node-' + act.id;
+  el.style.cssText = `position:absolute; left:${pos.x}px; top:${pos.y}px; width:${NODE_W}px; height:${NODE_H}px;`;
+
+  el.innerHTML = `
+    <div class="node-label">
+      <span>${act.ES}</span>
+      <span>${act.EF}</span>
+    </div>
+    <div class="node-id">${act.id}</div>
+    <div class="node-name">${act.name}</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+      <div class="node-label" style="margin:0; gap:2px;">
+        <span>${act.LS}</span>
+        <span>${act.LF}</span>
+      </div>
+      <div class="node-dur"><span>t=${act.dur}</span></div>
+    </div>
+    <div class="slack-badge ${act.slack===0?'zero':''}">slack=${act.slack}</div>
+  `;
+  container.appendChild(el);
+}
+
+// Draw nodes
+const startPos = positions['START'];
+const finPos = positions['FINISH'];
+makeStartEnd('START', 'START', {x: startPos.x, y: startPos.y + (NODE_H/2 - 45)});
+makeStartEnd('FINISH', 'FINISH', {x: finPos.x, y: finPos.y + (NODE_H/2 - 45)});
+
+activities.forEach(act => {
+  const pos = positions[act.id];
+  if (pos) makeNode(act, pos);
+});
+
+// Draw arrows
+function getCenterRight(id) {
+  const pos = positions[id];
+  const isStartEnd = id === 'START' || id === 'FINISH';
+  const w = isStartEnd ? 90 : NODE_W;
+  return { x: pos.x + w, y: pos.y + NODE_H/2 };
+}
+function getCenterLeft(id) {
+  const pos = positions[id];
+  return { x: pos.x, y: pos.y + NODE_H/2 };
+}
+
+function drawArrow(fromId, toId, isCritical) {
+  const from = getCenterRight(fromId);
+  const to = getCenterLeft(toId);
+  const color = isCritical ? '#f97316' : '#374151';
+  const strokeW = isCritical ? 2.5 : 1.5;
+
+  // Curved path
+  const dx = to.x - from.x;
+  const cp1x = from.x + dx * 0.5;
+  const cp2x = to.x - dx * 0.5;
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', `M ${from.x} ${from.y} C ${cp1x} ${from.y}, ${cp2x} ${to.y}, ${to.x} ${to.y}`);
+  path.setAttribute('stroke', color);
+  path.setAttribute('stroke-width', strokeW);
+  path.setAttribute('fill', 'none');
+  path.setAttribute('marker-end', `url(#arrow-${isCritical?'crit':'norm'})`);
+  if (!isCritical) path.setAttribute('stroke-dasharray', '5,3');
+  svg.appendChild(path);
+}
+
+// Arrowhead markers
+const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+['crit', 'norm'].forEach(type => {
+  const color = type === 'crit' ? '#f97316' : '#374151';
+  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+  marker.setAttribute('id', `arrow-${type}`);
+  marker.setAttribute('markerWidth', '8');
+  marker.setAttribute('markerHeight', '8');
+  marker.setAttribute('refX', '6');
+  marker.setAttribute('refY', '3');
+  marker.setAttribute('orient', 'auto');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  poly.setAttribute('points', '0 0, 8 3, 0 6');
+  poly.setAttribute('fill', color);
+  marker.appendChild(poly);
+  defs.appendChild(marker);
+});
+svg.appendChild(defs);
+
+// Start → A (critical)
+drawArrow('START', 'A', true);
+
+// A → B (critical), A → C (not critical)
+drawArrow('A', 'B', true);
+drawArrow('A', 'C', false);
+
+// B → D, E (not critical), B → F (critical)
+drawArrow('B', 'D', false);
+drawArrow('B', 'E', false);
+drawArrow('B', 'F', true);
+
+// D,E → G (not critical)
+drawArrow('D', 'G', false);
+drawArrow('E', 'G', false);
+
+// F → H (critical)
+drawArrow('F', 'H', true);
+
+// G → I (not critical)
+drawArrow('G', 'I', false);
+
+// H → J (critical)
+drawArrow('H', 'J', true);
+
+// I,J → K (J→K critical, I→K not)
+drawArrow('I', 'K', false);
+drawArrow('J', 'K', true);
+
+// K → L (critical)
+drawArrow('K', 'L', true);
+
+// L → M (critical), C → M (not critical)
+drawArrow('L', 'M', true);
+drawArrow('C', 'M', false);
+
+// M → N (critical)
+drawArrow('M', 'N', true);
+
+// N → FINISH (critical)
+drawArrow('N', 'FINISH', true);
+
+// ── TIMELINE BAR ──────────────────────────────────────────────
+(function() {
+  // Week → date mapping
+  // PW 0 = Jan 5, 2026; spring break after PW 8; summer starts Jun 8 for PW 15
+  const winterStart = new Date(2026, 0, 5); // Jan 5
+  const summerStart = new Date(2026, 5, 8); // Jun 8
+
+  function pwToDate(pw) {
+    if (pw <= 8) {
+      const d = new Date(winterStart);
+      d.setDate(d.getDate() + pw * 7);
+      return d;
+    } else if (pw <= 14) {
+      const d = new Date(winterStart);
+      d.setDate(d.getDate() + (pw + 1) * 7);
+      return d;
+    } else {
+      const d = new Date(summerStart);
+      d.setDate(d.getDate() + (pw - 15) * 7);
+      return d;
+    }
+  }
+
+  // Project runs PW 0 → PW 24 (end = Aug 16)
+  const totalPW = 24;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+
+  const container = document.getElementById('timeline-bar');
+  const totalW = 1200;
+  const TRACK_H = 36;
+  const LABEL_H = 22;
+  const BREAK_H = 26;
+  const totalH = LABEL_H + TRACK_H + BREAK_H + 10;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('width', totalW);
+  svg.setAttribute('height', totalH);
+  svg.style.display = 'block';
+  container.appendChild(svg);
+
+  function pwToX(pw) {
+    return (pw / totalPW) * (totalW - 60) + 30;
+  }
+
+  // Background track
+  const track = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  track.setAttribute('x', 30); track.setAttribute('y', LABEL_H);
+  track.setAttribute('width', totalW - 60); track.setAttribute('height', TRACK_H);
+  track.setAttribute('rx', 4);
+  track.setAttribute('fill', '#161b22');
+  track.setAttribute('stroke', '#30363d');
+  track.setAttribute('stroke-width', '1');
+  svg.appendChild(track);
+
+  // Activity segments
+  activities.forEach(act => {
+    const x1 = pwToX(act.ES);
+    const x2 = pwToX(act.EF);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x', x1);
+    rect.setAttribute('y', LABEL_H + 4);
+    rect.setAttribute('width', Math.max(x2 - x1 - 2, 4));
+    rect.setAttribute('height', TRACK_H - 8);
+    rect.setAttribute('rx', 3);
+    rect.setAttribute('fill', act.critical ? 'rgba(249,115,22,0.7)' : 'rgba(59,130,246,0.45)');
+    svg.appendChild(rect);
+
+    // Activity label if wide enough
+    const w = x2 - x1;
+    if (w > 28) {
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x', x1 + w/2);
+      txt.setAttribute('y', LABEL_H + TRACK_H/2 + 5);
+      txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('fill', '#e6edf3');
+      txt.setAttribute('font-size','10');
+      txt.setAttribute('font-family','Share Tech Mono, monospace');
+      txt.textContent = act.id;
+      svg.appendChild(txt);
+    }
+  });
+
+  // Week tick marks + date labels
+  for (let pw = 0; pw <= totalPW; pw++) {
+    const x = pwToX(pw);
+    const d = pwToDate(pw);
+    const mo = months[d.getMonth()];
+    const day = d.getDate();
+
+    // Tick
+    const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
+    tick.setAttribute('x1', x); tick.setAttribute('x2', x);
+    tick.setAttribute('y1', LABEL_H - 2);
+    tick.setAttribute('y2', LABEL_H + TRACK_H + 4);
+    tick.setAttribute('stroke', '#30363d');
+    tick.setAttribute('stroke-width', pw % 4 === 0 ? '1.5' : '0.5');
+    svg.appendChild(tick);
+
+    // Label every 4 weeks or key breaks
+    if (pw % 4 === 0 || pw === totalPW) {
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x', x);
+      lbl.setAttribute('y', LABEL_H - 5);
+      lbl.setAttribute('text-anchor','middle');
+      lbl.setAttribute('fill','#8b949e');
+      lbl.setAttribute('font-size','9');
+      lbl.setAttribute('font-family','Share Tech Mono, monospace');
+      lbl.textContent = `${mo} ${day}`;
+      svg.appendChild(lbl);
+    }
+  }
+
+  // Spring break band
+  const sbX1 = pwToX(8) + (pwToX(9) - pwToX(8)) * 0; // end of PW 8 = pwToX(9) in calendar gap
+  // Actually show as gap between PW8 end and PW9 start visually — mark it on a sub-row
+  const breakY = LABEL_H + TRACK_H + 4;
+  
+  // Semester labels
+  const semLabels = [
+    { label: '◀ EGR 485 — Winter Semester', pw1: 0, pw2: 14 },
+    { label: 'EGR 486 — Summer Semester ▶', pw1: 15, pw2: 24 },
+  ];
+  semLabels.forEach(s => {
+    const x1 = pwToX(s.pw1);
+    const x2 = pwToX(s.pw2);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x', x1 + 1); bg.setAttribute('y', breakY + 2);
+    bg.setAttribute('width', x2 - x1 - 2); bg.setAttribute('height', BREAK_H - 4);
+    bg.setAttribute('rx', 3);
+    bg.setAttribute('fill', s.pw1 === 0 ? 'rgba(59,130,246,0.08)' : 'rgba(34,197,94,0.08)');
+    bg.setAttribute('stroke', s.pw1 === 0 ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)');
+    bg.setAttribute('stroke-width','1');
+    svg.appendChild(bg);
+
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', (x1 + x2) / 2);
+    lbl.setAttribute('y', breakY + BREAK_H/2 + 4);
+    lbl.setAttribute('text-anchor','middle');
+    lbl.setAttribute('fill', s.pw1 === 0 ? 'rgba(59,130,246,0.8)' : 'rgba(34,197,94,0.8)');
+    lbl.setAttribute('font-size','9');
+    lbl.setAttribute('font-family','Barlow, sans-serif');
+    lbl.setAttribute('font-weight','600');
+    lbl.setAttribute('letter-spacing','0.05em');
+    lbl.textContent = s.label;
+    svg.appendChild(lbl);
+  });
+
+  // Spring break gap marker
+  const gapX1 = pwToX(8) + 2;
+  const gapX2 = pwToX(9) - 2;
+  // mark as "Spring Break" in track
+  const sbRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  sbRect.setAttribute('x', gapX1); sbRect.setAttribute('y', LABEL_H + 2);
+  sbRect.setAttribute('width', gapX2 - gapX1); sbRect.setAttribute('height', TRACK_H - 4);
+  sbRect.setAttribute('rx', 2);
+  sbRect.setAttribute('fill', 'rgba(255,255,255,0.04)');
+  sbRect.setAttribute('stroke', '#30363d');
+  sbRect.setAttribute('stroke-dasharray','3,2');
+  svg.appendChild(sbRect);
+  const sbTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  sbTxt.setAttribute('x', (gapX1+gapX2)/2);
+  sbTxt.setAttribute('y', LABEL_H + TRACK_H/2 + 4);
+  sbTxt.setAttribute('text-anchor','middle');
+  sbTxt.setAttribute('fill','#4b5563');
+  sbTxt.setAttribute('font-size','8');
+  sbTxt.setAttribute('font-family','Share Tech Mono, monospace');
+  sbTxt.textContent = 'BREAK';
+  svg.appendChild(sbTxt);
+
+  // Inter-semester gap
+  const isX1 = pwToX(14) + 2;
+  const isX2 = pwToX(15) - 2;
+  const isRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  isRect.setAttribute('x', isX1); isRect.setAttribute('y', LABEL_H + 2);
+  isRect.setAttribute('width', isX2 - isX1); isRect.setAttribute('height', TRACK_H - 4);
+  isRect.setAttribute('rx', 2);
+  isRect.setAttribute('fill', 'rgba(255,255,255,0.04)');
+  isRect.setAttribute('stroke', '#30363d');
+  isRect.setAttribute('stroke-dasharray','3,2');
+  svg.appendChild(isRect);
+  const isTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  isTxt.setAttribute('x', (isX1+isX2)/2);
+  isTxt.setAttribute('y', LABEL_H + TRACK_H/2 + 4);
+  isTxt.setAttribute('text-anchor','middle');
+  isTxt.setAttribute('fill','#4b5563');
+  isTxt.setAttribute('font-size','8');
+  isTxt.setAttribute('font-family','Share Tech Mono, monospace');
+  isTxt.textContent = 'GAP';
+  svg.appendChild(isTxt);
+
+  // End date marker
+  const endX = pwToX(24);
+  const endLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+  endLine.setAttribute('x1', endX); endLine.setAttribute('x2', endX);
+  endLine.setAttribute('y1', LABEL_H - 6); endLine.setAttribute('y2', LABEL_H + TRACK_H + 4);
+  endLine.setAttribute('stroke','#22c55e'); endLine.setAttribute('stroke-width','2');
+  svg.appendChild(endLine);
+  const endTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+  endTxt.setAttribute('x', endX - 3);
+  endTxt.setAttribute('y', LABEL_H - 9);
+  endTxt.setAttribute('text-anchor','end');
+  endTxt.setAttribute('fill','#22c55e');
+  endTxt.setAttribute('font-size','9');
+  endTxt.setAttribute('font-family','Share Tech Mono, monospace');
+  endTxt.textContent = 'Aug 16 ✓';
+  svg.appendChild(endTxt);
+
+  svg.setAttribute('height', totalH + 4);
+})();
+
+// Build table
+const tbody = document.getElementById('table-body');
+activities.forEach(act => {
+  const tr = document.createElement('tr');
+  tr.className = act.critical ? 'critical-row' : 'normal-row';
+  tr.innerHTML = `
+    <td>${act.id}</td>
+    <td>${act.name}</td>
+    <td>${act.pred.length ? act.pred.join(', ') : '—'}</td>
+    <td>${act.dur}</td>
+    <td>${act.ES}</td>
+    <td>${act.EF}</td>
+    <td>${act.LS}</td>
+    <td>${act.LF}</td>
+    <td class="${act.slack===0?'zero-slack':''}">${act.slack}</td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
