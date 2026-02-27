@@ -6,283 +6,79 @@
 <title>Gunimix Pro — Network Diagram</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700;900&display=swap');
-
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --border: #30363d;
-    --critical: #f97316;
-    --critical-glow: rgba(249,115,22,0.3);
-    --normal: #3b82f6;
-    --normal-glow: rgba(59,130,246,0.2);
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --finish: #22c55e;
-    --finish-glow: rgba(34,197,94,0.3);
-    --arrow-critical: #f97316;
-    --arrow-normal: #4b5563;
+    --bg:#0d1117; --surface:#161b22; --border:#30363d;
+    --critical:#f97316; --critical-glow:rgba(249,115,22,0.3);
+    --normal:#3b82f6; --normal-glow:rgba(59,130,246,0.2);
+    --text:#e6edf3; --muted:#8b949e;
+    --finish:#22c55e; --finish-glow:rgba(34,197,94,0.3);
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    min-height: 100vh;
-    padding: 24px;
-  }
-
-  /* Header */
-  .header {
-    text-align: center;
-    margin-bottom: 32px;
-  }
-  .header h1 {
-    font-size: 2rem;
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-  .header h1 span { color: var(--critical); }
-  .header p {
-    color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.85rem;
-    margin-top: 4px;
-  }
-
-  /* Legend */
-  .legend {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
-  }
-  .legend-box {
-    width: 16px; height: 16px;
-    border-radius: 3px;
-    border: 2px solid;
-  }
-  .legend-box.critical { border-color: var(--critical); background: rgba(249,115,22,0.15); }
-  .legend-box.normal { border-color: var(--normal); background: rgba(59,130,246,0.1); }
-
-  /* Node label format */
-  .node-label {
-    display: flex;
-    gap: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--muted);
-    margin-bottom: 4px;
-    justify-content: space-between;
-  }
-  .node-label span { 
-    background: rgba(255,255,255,0.06);
-    padding: 1px 5px;
-    border-radius: 2px;
-    min-width: 22px;
-    text-align: center;
-  }
-
-  /* Node grid layout */
-  .diagram-wrapper {
-    overflow-x: auto;
-    padding-bottom: 12px;
-  }
-
-  .diagram {
-    position: relative;
-    min-width: 1200px;
-    width: 100%;
-  }
-
-  svg.arrows {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    position: relative;
-  }
-
-  /* Node */
-  .node {
-    width: 140px;
-    min-height: 88px;
-    border-radius: 6px;
-    border: 2px solid;
-    padding: 8px 10px;
-    position: relative;
-    flex-shrink: 0;
-    transition: box-shadow 0.2s;
-  }
-  .node:hover { z-index: 10; }
-  .node.critical {
-    border-color: var(--critical);
-    background: linear-gradient(135deg, #1a0f06 0%, #1c1108 100%);
-    box-shadow: 0 0 12px var(--critical-glow);
-  }
-  .node.critical:hover { box-shadow: 0 0 24px var(--critical-glow); }
-  .node.normal {
-    border-color: var(--normal);
-    background: linear-gradient(135deg, #060d1a 0%, #08101f 100%);
-    box-shadow: 0 0 8px var(--normal-glow);
-  }
-  .node.normal:hover { box-shadow: 0 0 20px var(--normal-glow); }
-  .node.start-end {
-    border-color: var(--finish);
-    background: linear-gradient(135deg, #061a0c 0%, #081f10 100%);
-    box-shadow: 0 0 10px var(--finish-glow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 1rem;
-    letter-spacing: 0.1em;
-    color: var(--finish);
-    text-transform: uppercase;
-  }
-
-  .node-id {
-    font-weight: 900;
-    font-size: 1.1rem;
-    color: var(--critical);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .node.normal .node-id { color: var(--normal); }
-
-  .node-name {
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.3;
-    margin-bottom: 5px;
-  }
-
-  .node-dur {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-align: right;
-  }
-  .node-dur span {
-    background: rgba(255,255,255,0.08);
-    padding: 1px 4px;
-    border-radius: 2px;
-  }
-
-  .slack-badge {
-    position: absolute;
-    top: -10px; right: -10px;
-    background: #1e293b;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--muted);
-    padding: 1px 6px;
-    white-space: nowrap;
-  }
-  .slack-badge.zero { color: var(--critical); border-color: var(--critical); }
-
-  /* Spacers */
-  .spacer { flex: 1; }
-  .hspacer { width: 40px; flex-shrink: 0; }
-
-  /* Table */
-  .table-section {
-    margin-top: 40px;
-  }
-  .table-section h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 12px;
-    font-family: 'Share Tech Mono', monospace;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-  }
-  th {
-    background: var(--surface);
-    color: var(--muted);
-    font-family: 'Share Tech Mono', monospace;
-    font-weight: 400;
-    text-align: center;
-    padding: 8px 10px;
-    border-bottom: 2px solid var(--border);
-    font-size: 0.72rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  th:first-child, th:nth-child(2) { text-align: left; }
-  td {
-    padding: 7px 10px;
-    border-bottom: 1px solid rgba(48,54,61,0.5);
-    text-align: center;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-  td:first-child { 
-    font-weight: 900; 
-    font-size: 0.9rem;
-  }
-  td:nth-child(2) { 
-    text-align: left; 
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-size: 0.78rem;
-  }
-  tr.critical-row td { background: rgba(249,115,22,0.05); }
-  tr.critical-row td:first-child { color: var(--critical); }
-  tr.normal-row td:first-child { color: var(--normal); }
-  tr:hover td { background: rgba(255,255,255,0.03); }
-  .zero-slack { color: var(--critical) !important; font-weight: 700; }
-
-  /* Critical path callout */
-  .cp-bar {
-    background: linear-gradient(90deg, rgba(249,115,22,0.15) 0%, transparent 100%);
-    border-left: 3px solid var(--critical);
-    padding: 10px 16px;
-    margin-bottom: 20px;
-    border-radius: 0 6px 6px 0;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.8rem;
-    color: var(--critical);
-  }
-  .cp-bar strong { color: var(--text); }
-
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Barlow',sans-serif; min-height:100vh; padding:24px; }
+  .header { text-align:center; margin-bottom:28px; }
+  .header h1 { font-size:2rem; font-weight:900; letter-spacing:0.05em; text-transform:uppercase; color:var(--text); }
+  .header h1 span { color:var(--critical); }
+  .header p { color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:0.85rem; margin-top:4px; }
+  .tabs { display:flex; gap:8px; margin-bottom:0; }
+  .tab-btn { padding:8px 24px; border-radius:6px 6px 0 0; border:2px solid var(--border); background:var(--surface); color:var(--muted); font-family:'Barlow',sans-serif; font-weight:700; font-size:0.85rem; cursor:pointer; letter-spacing:0.05em; text-transform:uppercase; transition:all 0.15s; border-bottom:none; }
+  .tab-btn.active { background:var(--bg); color:var(--text); border-color:var(--critical); }
+  .tab-btn:hover:not(.active) { color:var(--text); border-color:var(--normal); }
+  .legend { display:flex; gap:24px; justify-content:center; margin:16px 0 20px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--muted); font-family:'Share Tech Mono',monospace; }
+  .legend-box { width:16px; height:16px; border-radius:3px; border:2px solid; }
+  .legend-box.critical { border-color:var(--critical); background:rgba(249,115,22,0.15); }
+  .legend-box.normal { border-color:var(--normal); background:rgba(59,130,246,0.1); }
+  .node-label { display:flex; gap:4px; font-family:'Share Tech Mono',monospace; font-size:0.62rem; color:var(--muted); margin-bottom:4px; justify-content:space-between; }
+  .node-label span { background:rgba(255,255,255,0.06); padding:1px 5px; border-radius:2px; min-width:22px; text-align:center; }
+  .node { border-radius:6px; border:2px solid; padding:8px 10px; position:absolute; transition:box-shadow 0.2s; }
+  .node:hover { z-index:10; }
+  .node.critical { border-color:var(--critical); background:linear-gradient(135deg,#1a0f06 0%,#1c1108 100%); box-shadow:0 0 12px var(--critical-glow); }
+  .node.critical:hover { box-shadow:0 0 24px var(--critical-glow); }
+  .node.normal { border-color:var(--normal); background:linear-gradient(135deg,#060d1a 0%,#08101f 100%); box-shadow:0 0 8px var(--normal-glow); }
+  .node.normal:hover { box-shadow:0 0 20px var(--normal-glow); }
+  .node.start-end { border-color:var(--finish); background:linear-gradient(135deg,#061a0c 0%,#081f10 100%); box-shadow:0 0 10px var(--finish-glow); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1rem; letter-spacing:0.1em; color:var(--finish); text-transform:uppercase; }
+  .node-id { font-weight:900; font-size:1.1rem; color:var(--critical); line-height:1; margin-bottom:4px; }
+  .node.normal .node-id { color:var(--normal); }
+  .node-name { font-size:0.68rem; font-weight:600; color:var(--text); line-height:1.3; margin-bottom:5px; }
+  .node-dur { font-family:'Share Tech Mono',monospace; font-size:0.65rem; color:var(--muted); text-align:right; }
+  .node-dur span { background:rgba(255,255,255,0.08); padding:1px 4px; border-radius:2px; }
+  .slack-badge { position:absolute; top:-10px; right:-10px; background:#1e293b; border:1px solid var(--border); border-radius:10px; font-family:'Share Tech Mono',monospace; font-size:0.6rem; color:var(--muted); padding:1px 6px; white-space:nowrap; }
+  .slack-badge.zero { color:var(--critical); border-color:var(--critical); }
+  .cp-bar { background:linear-gradient(90deg,rgba(249,115,22,0.15) 0%,transparent 100%); border-left:3px solid var(--critical); padding:10px 16px; margin-bottom:16px; border-radius:0 6px 6px 0; font-family:'Share Tech Mono',monospace; font-size:0.75rem; color:var(--critical); line-height:1.6; word-break:break-all; }
+  .cp-bar strong { color:var(--text); }
+  .zoom-row { display:flex; align-items:center; gap:14px; margin-bottom:12px; font-family:'Share Tech Mono',monospace; font-size:0.8rem; color:var(--muted); }
+  .zoom-row input[type=range] { flex:1; max-width:320px; accent-color:var(--critical); cursor:pointer; }
+  .zoom-row .zlbl { min-width:54px; color:var(--text); }
+  .scroll-wrap { overflow-x:auto; overflow-y:visible; padding-bottom:16px; border:1px solid var(--border); border-radius:0 8px 8px 8px; background:var(--surface); }
+  .canvas { position:relative; padding:20px 30px 0 30px; }
+  .swim-lane { position:absolute; border-radius:3px; pointer-events:none; }
+  .lane-lbl { position:absolute; font-family:'Share Tech Mono',monospace; font-size:0.56rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; opacity:0.32; pointer-events:none; }
+  .table-section { margin-top:40px; }
+  .table-section h2 { font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; font-family:'Share Tech Mono',monospace; }
+  table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+  th { background:var(--surface); color:var(--muted); font-family:'Share Tech Mono',monospace; font-weight:400; text-align:center; padding:8px 10px; border-bottom:2px solid var(--border); font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase; }
+  th:first-child,th:nth-child(2) { text-align:left; }
+  td { padding:7px 10px; border-bottom:1px solid rgba(48,54,61,0.5); text-align:center; font-family:'Share Tech Mono',monospace; font-size:0.75rem; color:var(--muted); }
+  td:first-child { font-weight:900; font-size:0.9rem; }
+  td:nth-child(2) { text-align:left; color:var(--text); font-family:'Barlow',sans-serif; font-size:0.78rem; }
+  tr.critical-row td { background:rgba(249,115,22,0.05); }
+  tr.critical-row td:first-child { color:var(--critical); }
+  tr.normal-row td:first-child { color:var(--normal); }
+  tr:hover td { background:rgba(255,255,255,0.03); }
+  .zero-slack { color:var(--critical)!important; font-weight:700; }
+  .phase-hdr td { background:rgba(255,255,255,0.05); color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:0.65rem; letter-spacing:0.08em; text-transform:uppercase; font-weight:700; text-align:left; padding:5px 10px; }
 </style>
 </head>
 <body>
 
 <div class="header">
   <h1>Gunimix Pro — <span>Network Diagram</span></h1>
-  <p>EGR 485/486 · Team 11 · Project Duration: 24 Weeks</p>
+  <p id="subtitle">EGR 485/486 · Team 11 · Project Duration: 24 Weeks</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-s" onclick="switchTab('summary')">Summary View</button>
+  <button class="tab-btn" id="tab-d" onclick="switchTab('detailed')">Detailed View (48 Activities)</button>
 </div>
 
 <div class="legend">
@@ -295,480 +91,482 @@
   </div>
 </div>
 
-<div class="cp-bar">
-  Critical Path: <strong>A → B → F → H → J → K → L → M → N</strong> &nbsp;|&nbsp; 24 weeks total
+<div class="cp-bar" id="cp-bar"></div>
+
+<div class="zoom-row">
+  <span>&#128269; Zoom</span>
+  <input type="range" id="zoom-slider" min="800" max="3200" value="1800" step="50">
+  <span class="zlbl" id="zoom-label">1800 px</span>
 </div>
 
-<!-- DIAGRAM -->
-<div class="diagram-wrapper">
-<div class="diagram" id="diagram">
-
-  <!-- SVG arrows will be injected by JS -->
-  <svg class="arrows" id="arrows"></svg>
-
-  <!-- Layout: columns represent roughly the flow -->
-  <!-- We'll absolutely position all nodes -->
-  <div style="height: 620px; position: relative;" id="node-container"></div>
-
-</div>
-</div>
-
-<!-- TIMELINE -->
-<div class="timeline-section" style="margin-top: 28px;">
-  <h2 style="font-size:1rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; font-family:'Share Tech Mono',monospace;">Project Timeline</h2>
-  <div style="overflow-x:auto; padding-bottom:8px;">
-    <div id="timeline-bar" style="position:relative; min-width:1200px;"></div>
+<div class="scroll-wrap">
+  <div class="canvas" id="canvas">
+    <div id="diagram" style="position:relative;">
+      <svg id="arrows" style="position:absolute;top:0;left:0;pointer-events:none;overflow:visible;"></svg>
+      <div id="node-container" style="position:relative;"></div>
+    </div>
+    <div id="timeline-bar" style="margin-top:18px;padding-bottom:20px;"></div>
   </div>
 </div>
 
-<!-- TABLE -->
 <div class="table-section">
-  <h2>Activity Table</h2>
+  <h2 id="tbl-title">Activity Table</h2>
   <table>
-    <thead>
-      <tr>
-        <th>Act</th>
-        <th>Activity</th>
-        <th>Predecessors</th>
-        <th>Dur (wk)</th>
-        <th>ES</th>
-        <th>EF</th>
-        <th>LS</th>
-        <th>LF</th>
-        <th>Slack</th>
-      </tr>
-    </thead>
+    <thead><tr>
+      <th>Act</th><th>Activity</th><th>Predecessors</th>
+      <th>Dur (wk)</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>Slack</th>
+    </tr></thead>
     <tbody id="table-body"></tbody>
   </table>
 </div>
 
 <script>
-const activities = [
-  { id:'A', name:'Scope / Specs Sign-off',           pred:[],          dur:4, ES:0,  EF:4,  LS:0,  LF:4,  slack:0,  critical:true  },
-  { id:'B', name:'Concept Selection',                pred:['A'],       dur:2, ES:4,  EF:6,  LS:4,  LF:6,  slack:0,  critical:true  },
-  { id:'C', name:'Testing Plan Approved',            pred:['A'],       dur:2, ES:4,  EF:6,  LS:17, LF:19, slack:13, critical:false },
-  { id:'D', name:'Trailer Safety Analysis',          pred:['B'],       dur:2, ES:6,  EF:8,  LS:8,  LF:10, slack:2,  critical:false },
-  { id:'E', name:'Trailer Design & CAD',             pred:['B'],       dur:3, ES:6,  EF:9,  LS:7,  LF:10, slack:1,  critical:false },
-  { id:'F', name:'Hopper & Auger System Design & CAD', pred:['B'],     dur:3, ES:6,  EF:9,  LS:6,  LF:9,  slack:0,  critical:true  },
-  { id:'G', name:'Trailer Component Procurement',    pred:['D','E'],   dur:2, ES:9,  EF:11, LS:10, LF:12, slack:1,  critical:false },
-  { id:'H', name:'Hopper & Auger Procurement',       pred:['F'],       dur:2, ES:9,  EF:11, LS:9,  LF:11, slack:0,  critical:true  },
-  { id:'I', name:'Trailer Fabrication & Assembly',   pred:['G'],       dur:3, ES:11, EF:14, LS:12, LF:15, slack:1,  critical:false },
-  { id:'J', name:'Hopper & Auger Fabrication',       pred:['H'],       dur:4, ES:11, EF:15, LS:11, LF:15, slack:0,  critical:true  },
-  { id:'K', name:'Final System Assembly',            pred:['I','J'],   dur:2, ES:15, EF:17, LS:15, LF:17, slack:0,  critical:true  },
-  { id:'L', name:'Full System Integration',          pred:['K'],       dur:2, ES:17, EF:19, LS:17, LF:19, slack:0,  critical:true  },
-  { id:'M', name:'System Testing & Validation',      pred:['L','C'],   dur:4, ES:19, EF:23, LS:19, LF:23, slack:0,  critical:true  },
-  { id:'N', name:'Final Sign-off',                   pred:['M'],       dur:1, ES:23, EF:24, LS:23, LF:24, slack:0,  critical:true  },
+// ═══════════════════════════════════════════════════
+// SUMMARY — 13 nodes (K removed), B+1wk, F+1wk
+// ═══════════════════════════════════════════════════
+const summaryActs = [
+  {id:'A', name:'Scope / Specs Sign-off',             pred:[],        dur:4, ES:0,  EF:4,  LS:0,  LF:4,  slack:0,  critical:true},
+  {id:'B', name:'Concept Selection',                  pred:['A'],     dur:3, ES:4,  EF:7,  LS:4,  LF:7,  slack:0,  critical:true},
+  {id:'C', name:'Testing Plan Approved',              pred:['A'],     dur:2, ES:4,  EF:6,  LS:17, LF:19, slack:13, critical:false},
+  {id:'D', name:'Trailer Safety Analysis',            pred:['B'],     dur:2, ES:7,  EF:9,  LS:10, LF:12, slack:3,  critical:false},
+  {id:'E', name:'Trailer Design & CAD',               pred:['B'],     dur:3, ES:7,  EF:10, LS:9,  LF:12, slack:2,  critical:false},
+  {id:'F', name:'Hopper & Auger System Design & CAD', pred:['B'],     dur:4, ES:7,  EF:11, LS:7,  LF:11, slack:0,  critical:true},
+  {id:'G', name:'Trailer Component Procurement',      pred:['D','E'], dur:2, ES:10, EF:12, LS:12, LF:14, slack:2,  critical:false},
+  {id:'H', name:'Hopper & Auger Procurement',         pred:['F'],     dur:2, ES:11, EF:13, LS:11, LF:13, slack:0,  critical:true},
+  {id:'I', name:'Trailer Fabrication & Assembly',     pred:['G'],     dur:3, ES:12, EF:15, LS:14, LF:17, slack:2,  critical:false},
+  {id:'J', name:'Hopper & Auger Fabrication',         pred:['H'],     dur:4, ES:13, EF:17, LS:13, LF:17, slack:0,  critical:true},
+  {id:'L', name:'Full System Integration',            pred:['I','J'], dur:2, ES:17, EF:19, LS:17, LF:19, slack:0,  critical:true},
+  {id:'M', name:'System Testing & Validation',        pred:['L','C'], dur:4, ES:19, EF:23, LS:19, LF:23, slack:0,  critical:true},
+  {id:'N', name:'Final Sign-off',                     pred:['M'],     dur:1, ES:23, EF:24, LS:23, LF:24, slack:0,  critical:true},
 ];
 
-// Node positions [col, row] in a grid (col in px, row in px)
-// Layout designed to show the flow clearly
-const NODE_W = 148;
-const NODE_H = 92;
-const COL_GAP = 52;
-const ROW_GAP = 28;
-
-// Manual layout positions {id: {x, y}}
-const positions = {
-  'START': { x: 10,   y: 250 },
-  'A':     { x: 130,  y: 250 },
-  'B':     { x: 330,  y: 250 },
-  'C':     { x: 330,  y: 490 },
-  'D':     { x: 530,  y: 100 },
-  'E':     { x: 530,  y: 250 },
-  'F':     { x: 530,  y: 400 },
-  'G':     { x: 730,  y: 175 },
-  'H':     { x: 730,  y: 400 },
-  'I':     { x: 930,  y: 175 },
-  'J':     { x: 930,  y: 400 },
-  'K':     { x: 1130, y: 287 },
-  'L':     { x: 1320, y: 287 },
-  'M':     { x: 1510, y: 287 },
-  'N':     { x: 1710, y: 287 },
-  'FINISH':{ x: 1900, y: 287 },
+// Original layout positions — K removed, nodes shift slightly
+// Keep same structure as original: B fans to D/E/F, G/H middle, I/J parallel, merge at L
+const summaryBase = {
+  'START': {x:10,   y:250},
+  'A':     {x:160,  y:250},
+  'B':     {x:390,  y:250},
+  'C':     {x:390,  y:490},
+  'D':     {x:640,  y:100},
+  'E':     {x:640,  y:250},
+  'F':     {x:640,  y:400},
+  'G':     {x:880,  y:175},
+  'H':     {x:880,  y:400},
+  'I':     {x:1100, y:175},
+  'J':     {x:1100, y:400},
+  'L':     {x:1340, y:287},
+  'M':     {x:1550, y:287},
+  'N':     {x:1760, y:287},
+  'FINISH':{x:1930, y:287},
 };
+const SUMMARY_BASE_W = 2048;
 
-const container = document.getElementById('node-container');
-const svg = document.getElementById('arrows');
-const diagramDiv = document.getElementById('diagram');
+// ═══════════════════════════════════════════════════
+// DETAILED — 48 activities, 27 weeks
+// ═══════════════════════════════════════════════════
+const detailedActs = [
+  {id:'A1', ph:'A', name:'Scope / Specs Sign-off',                   dur:4, pred:[],               ES:0,  EF:4,  LS:0,  LF:4,  slack:0,  critical:true},
+  {id:'B1', ph:'B', name:'Trailer Concept & Jacks Selection',        dur:1, pred:['A1'],            ES:4,  EF:5,  LS:7,  LF:8,  slack:3,  critical:false},
+  {id:'B2', ph:'B', name:'Concrete Hopper Size & Loading',           dur:2, pred:['A1'],            ES:4,  EF:6,  LS:4,  LF:6,  slack:0,  critical:true},
+  {id:'B3', ph:'B', name:'Sand Hopper Size & Loading',               dur:2, pred:['A1'],            ES:4,  EF:6,  LS:4,  LF:6,  slack:0,  critical:true},
+  {id:'B4', ph:'B', name:'Concrete Auger Selection',                 dur:1, pred:['B2'],            ES:6,  EF:7,  LS:6,  LF:7,  slack:0,  critical:true},
+  {id:'B5', ph:'B', name:'Sand Auger Selection',                     dur:1, pred:['B3'],            ES:6,  EF:7,  LS:6,  LF:7,  slack:0,  critical:true},
+  {id:'B6', ph:'B', name:'Main Chute/Auger Selection',               dur:1, pred:['B4','B5'],       ES:7,  EF:8,  LS:9,  LF:10, slack:2,  critical:false},
+  {id:'B7', ph:'B', name:'Vibration Method Selection',               dur:1, pred:['B2','B3'],       ES:6,  EF:7,  LS:24, LF:25, slack:18, critical:false},
+  {id:'B8', ph:'B', name:'Testing Plan Approved',                    dur:2, pred:['A1'],            ES:4,  EF:6,  LS:25, LF:27, slack:21, critical:false},
+  {id:'C1', ph:'C', name:'Trailer Layout Draft & Prototype',         dur:2, pred:['B1'],            ES:5,  EF:7,  LS:8,  LF:10, slack:3,  critical:false},
+  {id:'C2', ph:'C', name:'Trailer CAD Model',                        dur:2, pred:['C1'],            ES:7,  EF:9,  LS:10, LF:12, slack:3,  critical:false},
+  {id:'C3', ph:'C', name:'Trailer Design Review & Approval',         dur:1, pred:['C2'],            ES:9,  EF:10, LS:12, LF:13, slack:3,  critical:false},
+  {id:'C4', ph:'C', name:'Concrete Hopper CAD',                      dur:2, pred:['B2'],            ES:6,  EF:8,  LS:10, LF:12, slack:4,  critical:false},
+  {id:'C5', ph:'C', name:'Sand Hopper CAD',                          dur:2, pred:['B3'],            ES:6,  EF:8,  LS:10, LF:12, slack:4,  critical:false},
+  {id:'C6', ph:'C', name:'Concrete Auger CAD',                       dur:3, pred:['B4'],            ES:7,  EF:10, LS:7,  LF:10, slack:0,  critical:true},
+  {id:'C7', ph:'C', name:'Sand Auger CAD',                           dur:3, pred:['B5'],            ES:7,  EF:10, LS:7,  LF:10, slack:0,  critical:true},
+  {id:'C8', ph:'C', name:'Main Chute/Auger CAD',                     dur:2, pred:['B6','C6','C7'],  ES:10, EF:12, LS:10, LF:12, slack:0,  critical:true},
+  {id:'C9', ph:'C', name:'Vibrations CAD',                           dur:2, pred:['B7'],            ES:7,  EF:9,  LS:25, LF:27, slack:18, critical:false},
+  {id:'D1', ph:'D', name:'Trailer Safety Analysis',                  dur:2, pred:['C3'],            ES:10, EF:12, LS:13, LF:15, slack:3,  critical:false},
+  {id:'D2', ph:'D', name:'Concrete Hopper & Loading Safety',         dur:2, pred:['C4','C6'],       ES:10, EF:12, LS:12, LF:14, slack:2,  critical:false},
+  {id:'D3', ph:'D', name:'Sand Hopper & Loading Safety',             dur:2, pred:['C5','C7'],       ES:10, EF:12, LS:12, LF:14, slack:2,  critical:false},
+  {id:'D4', ph:'D', name:'Auger Pinch Point & Material Flow Safety', dur:2, pred:['C6','C7','C8'],  ES:12, EF:14, LS:12, LF:14, slack:0,  critical:true},
+  {id:'E1', ph:'E', name:'Trailer Component Procurement',            dur:2, pred:['D1'],            ES:12, EF:14, LS:15, LF:17, slack:3,  critical:false},
+  {id:'E2', ph:'E', name:'Hopper & Auger Component Procurement',     dur:2, pred:['D2','D3','D4'],  ES:14, EF:16, LS:14, LF:16, slack:0,  critical:true},
+  {id:'F1', ph:'F', name:'Trailer Fabrication & Assembly',           dur:3, pred:['E1'],            ES:14, EF:17, LS:17, LF:20, slack:3,  critical:false},
+  {id:'F2', ph:'F', name:'Assemble Concrete Hopper',                 dur:2, pred:['E2'],            ES:16, EF:18, LS:16, LF:18, slack:0,  critical:true},
+  {id:'F3', ph:'F', name:'Assemble Sand Hopper',                     dur:2, pred:['E2'],            ES:16, EF:18, LS:16, LF:18, slack:0,  critical:true},
+  {id:'F4', ph:'F', name:'Assemble Concrete Auger System',           dur:2, pred:['F2'],            ES:18, EF:20, LS:18, LF:20, slack:0,  critical:true},
+  {id:'F5', ph:'F', name:'Assemble Sand Auger System',               dur:2, pred:['F3'],            ES:18, EF:20, LS:18, LF:20, slack:0,  critical:true},
+  {id:'F6', ph:'F', name:'Assemble Main Auger/Chute System',         dur:2, pred:['E2'],            ES:16, EF:18, LS:25, LF:27, slack:9,  critical:false},
+  {id:'F7', ph:'F', name:'Assemble Vibrations System',               dur:2, pred:['F2','F3'],       ES:18, EF:20, LS:20, LF:22, slack:2,  critical:false},
+  {id:'H1', ph:'H', name:'Integrate Concrete System to Trailer',     dur:2, pred:['F4','F1'],       ES:20, EF:22, LS:20, LF:22, slack:0,  critical:true},
+  {id:'H2', ph:'H', name:'Integrate Sand System to Trailer',         dur:2, pred:['F5','F1'],       ES:20, EF:22, LS:20, LF:22, slack:0,  critical:true},
+  {id:'H3', ph:'H', name:'Integrate Main Chute to Trailer',          dur:2, pred:['H1','H2'],       ES:22, EF:24, LS:22, LF:24, slack:0,  critical:true},
+  {id:'H7', ph:'H', name:'Integrate Vibrations System',              dur:2, pred:['F7','H1','H2'],  ES:22, EF:24, LS:22, LF:24, slack:0,  critical:true},
+  {id:'I1', ph:'I', name:'Test Jack Stands',                         dur:1, pred:['F1'],            ES:17, EF:18, LS:25, LF:26, slack:8,  critical:false},
+  {id:'I5', ph:'I', name:'Test Concrete Hopper Loading',             dur:2, pred:['H1'],            ES:22, EF:24, LS:22, LF:24, slack:0,  critical:true},
+  {id:'I6', ph:'I', name:'Test Concrete Auger',                      dur:2, pred:['H1'],            ES:22, EF:24, LS:22, LF:24, slack:0,  critical:true},
+  {id:'I7', ph:'I', name:'Test Concrete Hopper Vibration',           dur:2, pred:['I5','I6','H7'],  ES:24, EF:26, LS:24, LF:26, slack:0,  critical:true},
+  {id:'I8', ph:'I', name:'Test Sand Hopper Loading',                 dur:1, pred:['H2'],            ES:22, EF:23, LS:24, LF:25, slack:2,  critical:false},
+  {id:'I9', ph:'I', name:'Test Sand Auger',                          dur:1, pred:['H2'],            ES:22, EF:23, LS:24, LF:25, slack:2,  critical:false},
+  {id:'I10',ph:'I', name:'Test Sand Hopper Vibration',               dur:1, pred:['I8','I9','H7'],  ES:24, EF:25, LS:25, LF:26, slack:1,  critical:false},
+  {id:'I11',ph:'I', name:'Test Main Auger',                          dur:2, pred:['H3'],            ES:24, EF:26, LS:24, LF:26, slack:0,  critical:true},
+  {id:'I14',ph:'I', name:'Test Weight Distribution',                 dur:1, pred:['H3'],            ES:24, EF:25, LS:25, LF:26, slack:1,  critical:false},
+  {id:'J1', ph:'J', name:'Begin Assembly Instructions',              dur:2, pred:['F5'],            ES:20, EF:22, LS:21, LF:23, slack:1,  critical:false},
+  {id:'J2', ph:'J', name:'Maintenance Manual',                       dur:2, pred:['J1'],            ES:22, EF:24, LS:23, LF:25, slack:1,  critical:false},
+  {id:'J3', ph:'J', name:'Certifications',                           dur:1, pred:['J2'],            ES:24, EF:25, LS:25, LF:26, slack:1,  critical:false},
+  {id:'J5', ph:'J', name:'Final Sign-off',                           dur:1, pred:['I7','I10','I11','I14','I1','J3'], ES:26, EF:27, LS:26, LF:27, slack:0, critical:true},
+];
 
-// Set diagram height based on max y
-const maxY = Math.max(...Object.values(positions).map(p => p.y)) + NODE_H + 40;
-const maxX = Math.max(...Object.values(positions).map(p => p.x)) + NODE_W + 40;
-container.style.height = maxY + 'px';
-diagramDiv.style.minWidth = maxX + 'px';
-diagramDiv.querySelector('svg').setAttribute('viewBox', `0 0 ${maxX} ${maxY}`);
-diagramDiv.querySelector('svg').style.width = maxX + 'px';
-diagramDiv.querySelector('svg').style.height = maxY + 'px';
+// Detailed positions — swim lanes
+const DY = {t:60, c:210, s:360, m:510, v:660, d:810};
+const detailedBase = {
+  START:{x:10,  y:430},
+  A1:  {x:120, y:430},
+  // B
+  B1:{x:330,y:DY.t}, B2:{x:330,y:DY.c}, B3:{x:330,y:DY.s},
+  B4:{x:510,y:DY.c}, B5:{x:510,y:DY.s}, B6:{x:690,y:DY.m},
+  B7:{x:510,y:DY.v}, B8:{x:330,y:DY.d},
+  // C
+  C1:{x:510,y:DY.t}, C2:{x:690,y:DY.t}, C3:{x:870,y:DY.t},
+  C4:{x:690,y:DY.c}, C5:{x:690,y:DY.s},
+  C6:{x:870,y:DY.c}, C7:{x:870,y:DY.s},
+  C8:{x:1050,y:DY.m}, C9:{x:690,y:DY.v},
+  // D
+  D1:{x:1050,y:DY.t}, D2:{x:1230,y:DY.c}, D3:{x:1230,y:DY.s}, D4:{x:1230,y:DY.m},
+  // E
+  E1:{x:1230,y:DY.t}, E2:{x:1410,y:430},
+  // F — F6 parallel to F4/F5, shown in main lane
+  F1:{x:1410,y:DY.t},
+  F2:{x:1590,y:DY.c}, F3:{x:1590,y:DY.s},
+  F4:{x:1770,y:DY.c}, F5:{x:1770,y:DY.s},
+  F6:{x:1590,y:DY.m},  // parallel track, starts at E2
+  F7:{x:1770,y:DY.v},
+  // H — no G3, H1/H2 direct from F4/F5, H3 depends on H1+H2
+  H1:{x:1950,y:DY.c}, H2:{x:1950,y:DY.s},
+  H3:{x:2130,y:DY.m},
+  H7:{x:2130,y:DY.v},
+  // I
+  I1:{x:1590,y:DY.d},
+  I5:{x:2130,y:DY.c-50}, I6:{x:2130,y:DY.c+60},
+  I7:{x:2310,y:DY.c},
+  I8:{x:2130,y:DY.s-30}, I9:{x:2130,y:DY.s+80},
+  I10:{x:2310,y:DY.s},
+  I11:{x:2310,y:DY.m}, I14:{x:2310,y:DY.v},
+  // J
+  J1:{x:1950,y:DY.d}, J2:{x:2130,y:DY.d}, J3:{x:2310,y:DY.d},
+  J5:{x:2490,y:430},
+  FINISH:{x:2670,y:430},
+};
+const DETAIL_BASE_W = 2850;
 
-// Create START node
-function makeStartEnd(id, label, pos) {
-  const el = document.createElement('div');
-  el.className = 'node start-end';
-  el.id = 'node-' + id;
-  el.style.cssText = `position:absolute; left:${pos.x}px; top:${pos.y}px; width:${id==='START'||id==='FINISH'?90:NODE_W}px; height:${NODE_H}px;`;
-  el.textContent = label;
-  container.appendChild(el);
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentView = 'summary';
+let currentW = 1800;
+
+const slider    = document.getElementById('zoom-slider');
+const zoomLabel = document.getElementById('zoom-label');
+const canvasEl  = document.getElementById('canvas');
+
+function switchTab(v) {
+  currentView = v;
+  document.getElementById('tab-s').classList.toggle('active', v==='summary');
+  document.getElementById('tab-d').classList.toggle('active', v==='detailed');
+  if (v==='summary') { slider.min='800'; slider.max='3200'; slider.value='1800'; }
+  else               { slider.min='1200'; slider.max='7000'; slider.value='4000'; }
+  currentW = parseInt(slider.value);
+  build();
 }
+slider.addEventListener('input', () => { currentW=parseInt(slider.value); build(); });
 
-// Create activity node
-function makeNode(act, pos) {
-  const el = document.createElement('div');
-  el.className = 'node ' + (act.critical ? 'critical' : 'normal');
-  el.id = 'node-' + act.id;
-  el.style.cssText = `position:absolute; left:${pos.x}px; top:${pos.y}px; width:${NODE_W}px; height:${NODE_H}px;`;
+// ═══════════════════════════════════════════════════
+// BUILD
+// ═══════════════════════════════════════════════════
+function build() {
+  zoomLabel.textContent = currentW + ' px';
+  const isSummary = currentView==='summary';
+  const acts    = isSummary ? summaryActs : detailedActs;
+  const posBase = isSummary ? summaryBase : detailedBase;
+  const refW    = isSummary ? SUMMARY_BASE_W : DETAIL_BASE_W;
+  const projEnd = isSummary ? 24 : 27;
 
-  el.innerHTML = `
-    <div class="node-label">
-      <span>${act.ES}</span>
-      <span>${act.EF}</span>
-    </div>
-    <div class="node-id">${act.id}</div>
-    <div class="node-name">${act.name}</div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-      <div class="node-label" style="margin:0; gap:2px;">
-        <span>${act.LS}</span>
-        <span>${act.LF}</span>
-      </div>
-      <div class="node-dur"><span>t=${act.dur}</span></div>
-    </div>
-    <div class="slack-badge ${act.slack===0?'zero':''}">slack=${act.slack}</div>
-  `;
-  container.appendChild(el);
-}
+  if (isSummary) {
+    document.getElementById('subtitle').textContent = 'EGR 485/486 · Team 11 · Project Duration: 24 Weeks';
+    document.getElementById('cp-bar').innerHTML = 'Critical Path: <strong>A → B → F → H → J → L → M → N</strong> &nbsp;|&nbsp; 24 weeks total';
+    document.getElementById('tbl-title').textContent = 'Activity Table';
+  } else {
+    const cp = detailedActs.filter(a=>a.critical).map(a=>a.id).join(' → ');
+    document.getElementById('subtitle').textContent = 'EGR 485/486 · Team 11 · Detailed View — 48 Activities · Ends Aug 16';
+    document.getElementById('cp-bar').innerHTML = 'Critical Path: <strong>'+cp+'</strong> &nbsp;|&nbsp; 27 weeks · Aug 16 deadline';
+    document.getElementById('tbl-title').textContent = 'Detailed Activity Table';
+  }
 
-// Draw nodes
-const startPos = positions['START'];
-const finPos = positions['FINISH'];
-makeStartEnd('START', 'START', {x: startPos.x, y: startPos.y + (NODE_H/2 - 45)});
-makeStartEnd('FINISH', 'FINISH', {x: finPos.x, y: finPos.y + (NODE_H/2 - 45)});
+  function sx(v) { return (v/refW)*currentW; }
 
-activities.forEach(act => {
-  const pos = positions[act.id];
-  if (pos) makeNode(act, pos);
-});
+  const NODE_W = isSummary ? Math.max(sx(148*(SUMMARY_BASE_W/2048)),100) : Math.max(sx(148),80);
+  const NODE_H = 92;
+  const SE_W   = Math.max(NODE_W*0.55, 70);
+  const fsMono = Math.max(0.55, NODE_W/290);
+  const fsId   = Math.max(0.85, NODE_W/160);
 
-// Draw arrows
-function getCenterRight(id) {
-  const pos = positions[id];
-  const isStartEnd = id === 'START' || id === 'FINISH';
-  const w = isStartEnd ? 90 : NODE_W;
-  return { x: pos.x + w, y: pos.y + NODE_H/2 };
-}
-function getCenterLeft(id) {
-  const pos = positions[id];
-  return { x: pos.x, y: pos.y + NODE_H/2 };
-}
+  const allPos = Object.values(posBase);
+  const cW2    = sx(Math.max(...allPos.map(p=>p.x))+220)+60;
+  const cH     = sx(Math.max(...allPos.map(p=>p.y))+NODE_H+60)+20;
+  canvasEl.style.width = cW2+'px';
 
-function drawArrow(fromId, toId, isCritical) {
-  const from = getCenterRight(fromId);
-  const to = getCenterLeft(toId);
-  const color = isCritical ? '#f97316' : '#374151';
-  const strokeW = isCritical ? 2.5 : 1.5;
+  const nc   = document.getElementById('node-container');
+  const svgE = document.getElementById('arrows');
+  const tlB  = document.getElementById('timeline-bar');
+  nc.innerHTML=''; svgE.innerHTML=''; tlB.innerHTML='';
+  nc.style.height=cH+'px'; nc.style.position='relative';
+  svgE.setAttribute('width',cW2); svgE.setAttribute('height',cH);
+  svgE.setAttribute('viewBox','0 0 '+cW2+' '+cH);
+  svgE.style.width=cW2+'px'; svgE.style.height=cH+'px';
 
-  // Curved path
-  const dx = to.x - from.x;
-  const cp1x = from.x + dx * 0.5;
-  const cp2x = to.x - dx * 0.5;
+  // Swim lanes (detailed only)
+  if (!isSummary) {
+    [{label:'Trailer',   y:DY.t,col:'59,130,246'},
+     {label:'Concrete',  y:DY.c,col:'249,115,22'},
+     {label:'Sand',      y:DY.s,col:'34,197,94'},
+     {label:'Main Auger',y:DY.m,col:'168,85,247'},
+     {label:'Vibrations',y:DY.v,col:'236,72,153'},
+     {label:'Docs',      y:DY.d,col:'148,163,184'}].forEach(l=>{
+      const div=document.createElement('div');
+      div.className='swim-lane';
+      div.style.cssText='left:0;top:'+sx(l.y-18)+'px;width:'+cW2+'px;height:'+sx(130)+'px;background:rgba('+l.col+',0.032);border-left:2px solid rgba('+l.col+',0.1);';
+      nc.appendChild(div);
+      const lbl=document.createElement('div');
+      lbl.className='lane-lbl';
+      lbl.style.cssText='left:5px;top:'+sx(l.y-14)+'px;color:rgba('+l.col+',0.65);';
+      lbl.textContent=l.label; nc.appendChild(lbl);
+    });
+  }
 
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', `M ${from.x} ${from.y} C ${cp1x} ${from.y}, ${cp2x} ${to.y}, ${to.x} ${to.y}`);
-  path.setAttribute('stroke', color);
-  path.setAttribute('stroke-width', strokeW);
-  path.setAttribute('fill', 'none');
-  path.setAttribute('marker-end', `url(#arrow-${isCritical?'crit':'norm'})`);
-  if (!isCritical) path.setAttribute('stroke-dasharray', '5,3');
-  svg.appendChild(path);
-}
+  // Arrow defs
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  ['crit','norm'].forEach(type=>{
+    const color=type==='crit'?'#f97316':'#374151';
+    const m=document.createElementNS('http://www.w3.org/2000/svg','marker');
+    m.setAttribute('id','arrow-'+type); m.setAttribute('markerWidth','8');
+    m.setAttribute('markerHeight','8'); m.setAttribute('refX','6');
+    m.setAttribute('refY','3'); m.setAttribute('orient','auto');
+    const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    poly.setAttribute('points','0 0, 8 3, 0 6'); poly.setAttribute('fill',color);
+    m.appendChild(poly); defs.appendChild(m);
+  });
+  svgE.appendChild(defs);
 
-// Arrowhead markers
-const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-['crit', 'norm'].forEach(type => {
-  const color = type === 'crit' ? '#f97316' : '#374151';
-  const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-  marker.setAttribute('id', `arrow-${type}`);
-  marker.setAttribute('markerWidth', '8');
-  marker.setAttribute('markerHeight', '8');
-  marker.setAttribute('refX', '6');
-  marker.setAttribute('refY', '3');
-  marker.setAttribute('orient', 'auto');
-  const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-  poly.setAttribute('points', '0 0, 8 3, 0 6');
-  poly.setAttribute('fill', color);
-  marker.appendChild(poly);
-  defs.appendChild(marker);
-});
-svg.appendChild(defs);
+  function p(id)  { const b=posBase[id]; return {x:sx(b.x),y:sx(b.y)}; }
+  function rc(id) { const pp=p(id); const w=(id==='START'||id==='FINISH')?SE_W:NODE_W; return {x:pp.x+w,y:pp.y+NODE_H/2}; }
+  function lc(id) { const pp=p(id); return {x:pp.x,y:pp.y+NODE_H/2}; }
 
-// Start → A (critical)
-drawArrow('START', 'A', true);
+  // START / FINISH
+  ['START','FINISH'].forEach(id=>{
+    const pp=p(id),el=document.createElement('div');
+    el.className='node start-end';
+    el.style.cssText='left:'+pp.x+'px;top:'+pp.y+'px;width:'+SE_W+'px;height:'+NODE_H+'px;font-size:'+Math.max(0.7,NODE_W/220)+'rem;';
+    el.textContent=id; nc.appendChild(el);
+  });
 
-// A → B (critical), A → C (not critical)
-drawArrow('A', 'B', true);
-drawArrow('A', 'C', false);
+  // Activity nodes
+  acts.forEach(act=>{
+    const pp=p(act.id),el=document.createElement('div');
+    el.className='node '+(act.critical?'critical':'normal');
+    el.style.cssText='left:'+pp.x+'px;top:'+pp.y+'px;width:'+NODE_W+'px;height:'+NODE_H+'px;';
+    el.innerHTML=
+      '<div class="node-label"><span>'+act.ES+'</span><span>'+act.EF+'</span></div>'+
+      '<div class="node-id" style="font-size:'+fsId+'rem">'+act.id+'</div>'+
+      '<div class="node-name" style="font-size:'+fsMono+'rem">'+act.name+'</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">'+
+        '<div class="node-label" style="margin:0;gap:2px;"><span>'+act.LS+'</span><span>'+act.LF+'</span></div>'+
+        '<div class="node-dur"><span>t='+act.dur+'</span></div>'+
+      '</div>'+
+      '<div class="slack-badge '+(act.slack===0?'zero':'')+'">slack='+act.slack+'</div>';
+    nc.appendChild(el);
+  });
 
-// B → D, E (not critical), B → F (critical)
-drawArrow('B', 'D', false);
-drawArrow('B', 'E', false);
-drawArrow('B', 'F', true);
+  // Arrows
+  function drawArrow(fromId, toId, crit) {
+    const from=rc(fromId), to=lc(toId);
+    const color=crit?'#f97316':'#374151';
+    const dx=to.x-from.x;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M '+from.x+' '+from.y+' C '+(from.x+dx*0.5)+' '+from.y+', '+(to.x-dx*0.5)+' '+to.y+', '+to.x+' '+to.y);
+    path.setAttribute('stroke',color); path.setAttribute('stroke-width',crit?'2.5':'1.5');
+    path.setAttribute('fill','none');
+    path.setAttribute('marker-end','url(#arrow-'+(crit?'crit':'norm')+')');
+    if (!crit) path.setAttribute('stroke-dasharray','5,3');
+    svgE.appendChild(path);
+  }
 
-// D,E → G (not critical)
-drawArrow('D', 'G', false);
-drawArrow('E', 'G', false);
+  if (isSummary) {
+    drawArrow('START','A',true);
+    drawArrow('A','B',true);
+    drawArrow('A','C',false);
+    drawArrow('B','D',false);
+    drawArrow('B','E',false);
+    drawArrow('B','F',true);
+    drawArrow('D','G',false);
+    drawArrow('E','G',false);
+    drawArrow('F','H',true);
+    drawArrow('G','I',false);
+    drawArrow('H','J',true);
+    drawArrow('I','L',false);
+    drawArrow('J','L',true);
+    drawArrow('L','M',true);
+    drawArrow('C','M',false);
+    drawArrow('M','N',true);
+    drawArrow('N','FINISH',true);
+  } else {
+    drawArrow('START','A1',true);
+    detailedActs.forEach(act=>{
+      act.pred.forEach(pid=>{
+        const pa=detailedActs.find(a=>a.id===pid);
+        drawArrow(pid, act.id, act.critical && pa && pa.critical);
+      });
+    });
+    drawArrow('J5','FINISH',true);
+  }
 
-// F → H (critical)
-drawArrow('F', 'H', true);
-
-// G → I (not critical)
-drawArrow('G', 'I', false);
-
-// H → J (critical)
-drawArrow('H', 'J', true);
-
-// I,J → K (J→K critical, I→K not)
-drawArrow('I', 'K', false);
-drawArrow('J', 'K', true);
-
-// K → L (critical)
-drawArrow('K', 'L', true);
-
-// L → M (critical), C → M (not critical)
-drawArrow('L', 'M', true);
-drawArrow('C', 'M', false);
-
-// M → N (critical)
-drawArrow('M', 'N', true);
-
-// N → FINISH (critical)
-drawArrow('N', 'FINISH', true);
-
-// ── TIMELINE BAR ──────────────────────────────────────────────
-(function() {
-  // Week → date mapping
-  // PW 0 = Jan 5, 2026; spring break after PW 8; summer starts Jun 8 for PW 15
-  const winterStart = new Date(2026, 0, 5); // Jan 5
-  const summerStart = new Date(2026, 5, 8); // Jun 8
+  // ── TIMELINE ───────────────────────────────────────────────
+  const winterStart = new Date(2026,0,5);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
 
   function pwToDate(pw) {
-    if (pw <= 8) {
-      const d = new Date(winterStart);
-      d.setDate(d.getDate() + pw * 7);
-      return d;
-    } else if (pw <= 14) {
-      const d = new Date(winterStart);
-      d.setDate(d.getDate() + (pw + 1) * 7);
-      return d;
+    if (isSummary) {
+      if (pw<=8)       { const d=new Date(winterStart); d.setDate(d.getDate()+pw*7); return d; }
+      else if (pw<=14) { const d=new Date(winterStart); d.setDate(d.getDate()+(pw+1)*7); return d; }
+      else             { const d=new Date(2026,5,8); d.setDate(d.getDate()+(pw-15)*7); return d; }
     } else {
-      const d = new Date(summerStart);
-      d.setDate(d.getDate() + (pw - 15) * 7);
-      return d;
+      // Detailed: PW27 ≈ Aug 16 (anchor summer at May 25 → PW27 = Aug 16)
+      if (pw<=8)       { const d=new Date(winterStart); d.setDate(d.getDate()+pw*7); return d; }
+      else if (pw<=14) { const d=new Date(winterStart); d.setDate(d.getDate()+(pw+1)*7); return d; }
+      else             { const d=new Date(2026,4,25); d.setDate(d.getDate()+(pw-15)*7); return d; }
     }
   }
 
-  // Project runs PW 0 → PW 24 (end = Aug 16)
-  const totalPW = 24;
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
+  const TLW=cW2-60, TH=36, LH=22, BH=26, tlH=LH+TH+BH+14;
+  const tlSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  tlSvg.setAttribute('width',cW2); tlSvg.setAttribute('height',tlH);
+  tlSvg.style.display='block'; tlB.appendChild(tlSvg);
+  function pwX(pw) { return (pw/projEnd)*TLW+30; }
 
-  const container = document.getElementById('timeline-bar');
-  const totalW = 1200;
-  const TRACK_H = 36;
-  const LABEL_H = 22;
-  const BREAK_H = 26;
-  const totalH = LABEL_H + TRACK_H + BREAK_H + 10;
+  // Track bg
+  const trk=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  trk.setAttribute('x',30); trk.setAttribute('y',LH); trk.setAttribute('width',TLW);
+  trk.setAttribute('height',TH); trk.setAttribute('rx',4); trk.setAttribute('fill','#0d1117');
+  trk.setAttribute('stroke','#30363d'); trk.setAttribute('stroke-width','1');
+  tlSvg.appendChild(trk);
 
-  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('width', totalW);
-  svg.setAttribute('height', totalH);
-  svg.style.display = 'block';
-  container.appendChild(svg);
-
-  function pwToX(pw) {
-    return (pw / totalPW) * (totalW - 60) + 30;
-  }
-
-  // Background track
-  const track = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  track.setAttribute('x', 30); track.setAttribute('y', LABEL_H);
-  track.setAttribute('width', totalW - 60); track.setAttribute('height', TRACK_H);
-  track.setAttribute('rx', 4);
-  track.setAttribute('fill', '#161b22');
-  track.setAttribute('stroke', '#30363d');
-  track.setAttribute('stroke-width', '1');
-  svg.appendChild(track);
-
-  // Activity segments
-  activities.forEach(act => {
-    const x1 = pwToX(act.ES);
-    const x2 = pwToX(act.EF);
-    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    rect.setAttribute('x', x1);
-    rect.setAttribute('y', LABEL_H + 4);
-    rect.setAttribute('width', Math.max(x2 - x1 - 2, 4));
-    rect.setAttribute('height', TRACK_H - 8);
-    rect.setAttribute('rx', 3);
-    rect.setAttribute('fill', act.critical ? 'rgba(249,115,22,0.7)' : 'rgba(59,130,246,0.45)');
-    svg.appendChild(rect);
-
-    // Activity label if wide enough
-    const w = x2 - x1;
-    if (w > 28) {
-      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
-      txt.setAttribute('x', x1 + w/2);
-      txt.setAttribute('y', LABEL_H + TRACK_H/2 + 5);
-      txt.setAttribute('text-anchor','middle');
-      txt.setAttribute('fill', '#e6edf3');
-      txt.setAttribute('font-size','10');
-      txt.setAttribute('font-family','Share Tech Mono, monospace');
-      txt.textContent = act.id;
-      svg.appendChild(txt);
+  // Activity bars
+  acts.forEach(act=>{
+    const x1=pwX(act.ES), x2=pwX(act.EF);
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',x1); r.setAttribute('y',LH+4);
+    r.setAttribute('width',Math.max(x2-x1-2,4)); r.setAttribute('height',TH-8);
+    r.setAttribute('rx',3);
+    r.setAttribute('fill',act.critical?'rgba(249,115,22,0.75)':'rgba(59,130,246,0.45)');
+    tlSvg.appendChild(r);
+    if (x2-x1>20) {
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',x1+(x2-x1)/2); t.setAttribute('y',LH+TH/2+4);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('fill','#e6edf3');
+      t.setAttribute('font-size','10'); t.setAttribute('font-family','Share Tech Mono, monospace');
+      t.textContent=act.id; tlSvg.appendChild(t);
     }
   });
 
-  // Week tick marks + date labels
-  for (let pw = 0; pw <= totalPW; pw++) {
-    const x = pwToX(pw);
-    const d = pwToDate(pw);
-    const mo = months[d.getMonth()];
-    const day = d.getDate();
-
-    // Tick
-    const tick = document.createElementNS('http://www.w3.org/2000/svg','line');
-    tick.setAttribute('x1', x); tick.setAttribute('x2', x);
-    tick.setAttribute('y1', LABEL_H - 2);
-    tick.setAttribute('y2', LABEL_H + TRACK_H + 4);
-    tick.setAttribute('stroke', '#30363d');
-    tick.setAttribute('stroke-width', pw % 4 === 0 ? '1.5' : '0.5');
-    svg.appendChild(tick);
-
-    // Label every 4 weeks or key breaks
-    if (pw % 4 === 0 || pw === totalPW) {
-      const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
-      lbl.setAttribute('x', x);
-      lbl.setAttribute('y', LABEL_H - 5);
-      lbl.setAttribute('text-anchor','middle');
-      lbl.setAttribute('fill','#8b949e');
-      lbl.setAttribute('font-size','9');
-      lbl.setAttribute('font-family','Share Tech Mono, monospace');
-      lbl.textContent = `${mo} ${day}`;
-      svg.appendChild(lbl);
+  // Week ticks + date labels
+  for (let pw=0; pw<=projEnd; pw++) {
+    const x=pwX(pw), d=pwToDate(pw);
+    const tick=document.createElementNS('http://www.w3.org/2000/svg','line');
+    tick.setAttribute('x1',x); tick.setAttribute('x2',x);
+    tick.setAttribute('y1',LH-2); tick.setAttribute('y2',LH+TH+4);
+    tick.setAttribute('stroke','#30363d'); tick.setAttribute('stroke-width',pw%4===0?'1.5':'0.5');
+    tlSvg.appendChild(tick);
+    if (pw%4===0||pw===projEnd) {
+      const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+      lbl.setAttribute('x',x); lbl.setAttribute('y',LH-5);
+      lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','#8b949e');
+      lbl.setAttribute('font-size','9'); lbl.setAttribute('font-family','Share Tech Mono, monospace');
+      lbl.textContent=months[d.getMonth()]+' '+d.getDate(); tlSvg.appendChild(lbl);
     }
   }
 
-  // Spring break band
-  const sbX1 = pwToX(8) + (pwToX(9) - pwToX(8)) * 0; // end of PW 8 = pwToX(9) in calendar gap
-  // Actually show as gap between PW8 end and PW9 start visually — mark it on a sub-row
-  const breakY = LABEL_H + TRACK_H + 4;
-  
-  // Semester labels
-  const semLabels = [
-    { label: '◀ EGR 485 — Winter Semester', pw1: 0, pw2: 14 },
-    { label: 'EGR 486 — Summer Semester ▶', pw1: 15, pw2: 24 },
-  ];
-  semLabels.forEach(s => {
-    const x1 = pwToX(s.pw1);
-    const x2 = pwToX(s.pw2);
-    const bg = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    bg.setAttribute('x', x1 + 1); bg.setAttribute('y', breakY + 2);
-    bg.setAttribute('width', x2 - x1 - 2); bg.setAttribute('height', BREAK_H - 4);
-    bg.setAttribute('rx', 3);
-    bg.setAttribute('fill', s.pw1 === 0 ? 'rgba(59,130,246,0.08)' : 'rgba(34,197,94,0.08)');
-    bg.setAttribute('stroke', s.pw1 === 0 ? 'rgba(59,130,246,0.3)' : 'rgba(34,197,94,0.3)');
-    bg.setAttribute('stroke-width','1');
-    svg.appendChild(bg);
-
-    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
-    lbl.setAttribute('x', (x1 + x2) / 2);
-    lbl.setAttribute('y', breakY + BREAK_H/2 + 4);
-    lbl.setAttribute('text-anchor','middle');
-    lbl.setAttribute('fill', s.pw1 === 0 ? 'rgba(59,130,246,0.8)' : 'rgba(34,197,94,0.8)');
-    lbl.setAttribute('font-size','9');
-    lbl.setAttribute('font-family','Barlow, sans-serif');
-    lbl.setAttribute('font-weight','600');
-    lbl.setAttribute('letter-spacing','0.05em');
-    lbl.textContent = s.label;
-    svg.appendChild(lbl);
+  const bY=LH+TH+4;
+  // Semester bands
+  [{label:'EGR 485 — Winter Semester',pw1:0,pw2:14,col:'59,130,246'},
+   {label:'EGR 486 — Summer Semester',pw1:15,pw2:projEnd,col:'34,197,94'}].forEach(s=>{
+    const x1=pwX(s.pw1), x2=pwX(s.pw2);
+    const bg=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    bg.setAttribute('x',x1+1); bg.setAttribute('y',bY+2);
+    bg.setAttribute('width',x2-x1-2); bg.setAttribute('height',BH-4);
+    bg.setAttribute('rx',3); bg.setAttribute('fill','rgba('+s.col+',0.08)');
+    bg.setAttribute('stroke','rgba('+s.col+',0.3)'); bg.setAttribute('stroke-width','1');
+    tlSvg.appendChild(bg);
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x',(x1+x2)/2); lbl.setAttribute('y',bY+BH/2+4);
+    lbl.setAttribute('text-anchor','middle'); lbl.setAttribute('fill','rgba('+s.col+',0.85)');
+    lbl.setAttribute('font-size','9'); lbl.setAttribute('font-family','Barlow, sans-serif');
+    lbl.setAttribute('font-weight','600'); lbl.textContent=s.label; tlSvg.appendChild(lbl);
   });
 
-  // Spring break gap marker
-  const gapX1 = pwToX(8) + 2;
-  const gapX2 = pwToX(9) - 2;
-  // mark as "Spring Break" in track
-  const sbRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  sbRect.setAttribute('x', gapX1); sbRect.setAttribute('y', LABEL_H + 2);
-  sbRect.setAttribute('width', gapX2 - gapX1); sbRect.setAttribute('height', TRACK_H - 4);
-  sbRect.setAttribute('rx', 2);
-  sbRect.setAttribute('fill', 'rgba(255,255,255,0.04)');
-  sbRect.setAttribute('stroke', '#30363d');
-  sbRect.setAttribute('stroke-dasharray','3,2');
-  svg.appendChild(sbRect);
-  const sbTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  sbTxt.setAttribute('x', (gapX1+gapX2)/2);
-  sbTxt.setAttribute('y', LABEL_H + TRACK_H/2 + 4);
-  sbTxt.setAttribute('text-anchor','middle');
-  sbTxt.setAttribute('fill','#4b5563');
-  sbTxt.setAttribute('font-size','8');
-  sbTxt.setAttribute('font-family','Share Tech Mono, monospace');
-  sbTxt.textContent = 'BREAK';
-  svg.appendChild(sbTxt);
+  // Gap markers
+  const gaps = isSummary
+    ? [{x1:pwX(8)+2,x2:pwX(9)-2,label:'BREAK'},{x1:pwX(14)+2,x2:pwX(15)-2,label:'GAP'}]
+    : [{x1:pwX(8)+2,x2:pwX(9)-2,label:'BREAK'},{x1:pwX(14)+2,x2:pwX(15)-2,label:'GAP'}];
+  gaps.forEach(g=>{
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',g.x1); r.setAttribute('y',LH+2);
+    r.setAttribute('width',Math.max(g.x2-g.x1,2)); r.setAttribute('height',TH-4);
+    r.setAttribute('rx',2); r.setAttribute('fill','rgba(255,255,255,0.04)');
+    r.setAttribute('stroke','#30363d'); r.setAttribute('stroke-dasharray','3,2');
+    tlSvg.appendChild(r);
+    if (g.x2-g.x1>14) {
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',(g.x1+g.x2)/2); t.setAttribute('y',LH+TH/2+4);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('fill','#4b5563');
+      t.setAttribute('font-size','8'); t.setAttribute('font-family','Share Tech Mono, monospace');
+      t.textContent=g.label; tlSvg.appendChild(t);
+    }
+  });
 
-  // Inter-semester gap
-  const isX1 = pwToX(14) + 2;
-  const isX2 = pwToX(15) - 2;
-  const isRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  isRect.setAttribute('x', isX1); isRect.setAttribute('y', LABEL_H + 2);
-  isRect.setAttribute('width', isX2 - isX1); isRect.setAttribute('height', TRACK_H - 4);
-  isRect.setAttribute('rx', 2);
-  isRect.setAttribute('fill', 'rgba(255,255,255,0.04)');
-  isRect.setAttribute('stroke', '#30363d');
-  isRect.setAttribute('stroke-dasharray','3,2');
-  svg.appendChild(isRect);
-  const isTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  isTxt.setAttribute('x', (isX1+isX2)/2);
-  isTxt.setAttribute('y', LABEL_H + TRACK_H/2 + 4);
-  isTxt.setAttribute('text-anchor','middle');
-  isTxt.setAttribute('fill','#4b5563');
-  isTxt.setAttribute('font-size','8');
-  isTxt.setAttribute('font-family','Share Tech Mono, monospace');
-  isTxt.textContent = 'GAP';
-  svg.appendChild(isTxt);
+  // End marker — always Aug 16
+  const ex=pwX(projEnd);
+  const el2=document.createElementNS('http://www.w3.org/2000/svg','line');
+  el2.setAttribute('x1',ex); el2.setAttribute('x2',ex);
+  el2.setAttribute('y1',LH-6); el2.setAttribute('y2',LH+TH+4);
+  el2.setAttribute('stroke','#22c55e'); el2.setAttribute('stroke-width','2');
+  tlSvg.appendChild(el2);
+  const et=document.createElementNS('http://www.w3.org/2000/svg','text');
+  et.setAttribute('x',ex-3); et.setAttribute('y',LH-9);
+  et.setAttribute('text-anchor','end'); et.setAttribute('fill','#22c55e');
+  et.setAttribute('font-size','9'); et.setAttribute('font-family','Share Tech Mono, monospace');
+  et.textContent='Aug 16 ✓'; tlSvg.appendChild(et);
 
-  // End date marker
-  const endX = pwToX(24);
-  const endLine = document.createElementNS('http://www.w3.org/2000/svg','line');
-  endLine.setAttribute('x1', endX); endLine.setAttribute('x2', endX);
-  endLine.setAttribute('y1', LABEL_H - 6); endLine.setAttribute('y2', LABEL_H + TRACK_H + 4);
-  endLine.setAttribute('stroke','#22c55e'); endLine.setAttribute('stroke-width','2');
-  svg.appendChild(endLine);
-  const endTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
-  endTxt.setAttribute('x', endX - 3);
-  endTxt.setAttribute('y', LABEL_H - 9);
-  endTxt.setAttribute('text-anchor','end');
-  endTxt.setAttribute('fill','#22c55e');
-  endTxt.setAttribute('font-size','9');
-  endTxt.setAttribute('font-family','Share Tech Mono, monospace');
-  endTxt.textContent = 'Aug 16 ✓';
-  svg.appendChild(endTxt);
+  // ── TABLE ─────────────────────────────────────────────────
+  const tbody=document.getElementById('table-body');
+  tbody.innerHTML='';
+  const phNames={A:'Phase A — Scope',B:'Phase B — Concept Selection',C:'Phase C — Design & CAD',
+    D:'Phase D — Safety Analysis',E:'Phase E — Procurement',F:'Phase F — Fabrication',
+    H:'Phase H — Integration',I:'Phase I — Testing',J:'Phase J — Documentation & Sign-off'};
+  let lastPh=null;
+  acts.forEach(act=>{
+    if (!isSummary && act.ph!==lastPh) {
+      const hr=document.createElement('tr'); hr.className='phase-hdr';
+      hr.innerHTML='<td colspan="9">'+(phNames[act.ph]||'Phase '+act.ph)+'</td>';
+      tbody.appendChild(hr); lastPh=act.ph;
+    }
+    const tr=document.createElement('tr'); tr.className=act.critical?'critical-row':'normal-row';
+    tr.innerHTML='<td>'+act.id+'</td><td>'+act.name+'</td>'+
+      '<td>'+(act.pred.length?act.pred.join(', '):'—')+'</td>'+
+      '<td>'+act.dur+'</td><td>'+act.ES+'</td><td>'+act.EF+'</td>'+
+      '<td>'+act.LS+'</td><td>'+act.LF+'</td>'+
+      '<td class="'+(act.slack===0?'zero-slack':'')+'">'+act.slack+'</td>';
+    tbody.appendChild(tr);
+  });
+}
 
-  svg.setAttribute('height', totalH + 4);
-})();
-
-// Build table
-const tbody = document.getElementById('table-body');
-activities.forEach(act => {
-  const tr = document.createElement('tr');
-  tr.className = act.critical ? 'critical-row' : 'normal-row';
-  tr.innerHTML = `
-    <td>${act.id}</td>
-    <td>${act.name}</td>
-    <td>${act.pred.length ? act.pred.join(', ') : '—'}</td>
-    <td>${act.dur}</td>
-    <td>${act.ES}</td>
-    <td>${act.EF}</td>
-    <td>${act.LS}</td>
-    <td>${act.LF}</td>
-    <td class="${act.slack===0?'zero-slack':''}">${act.slack}</td>
-  `;
-  tbody.appendChild(tr);
-});
+build();
 </script>
 </body>
 </html>
